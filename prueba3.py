@@ -42,8 +42,26 @@ def draw_board(board):
                 else:
                     piece_image = imagenes_piezas_negras[pieza.piece_type]
                 piece_image = pygame.transform.scale(piece_image, (TAMAÑO_CUADRO, TAMAÑO_CUADRO))
+                #piece_rect = piece_image.get_rect(center=cuadro_rect.center)
                 pantalla.blit(piece_image, (col * TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO))
+                
 
+#funcion para graficar los poibles movimientos
+def posibles_movimientos_grafica(posicion, movimientos):
+    for movimiento in movimientos:
+        if movimiento.from_square == posicion:
+            destino = movimiento.to_square
+            col = chess.square_file(destino)
+            fil = 7 - chess.square_rank(destino)
+            #dibujar todo el cuadro de opciones
+            #pygame.draw.rect(pantalla, (0, 255, 0, 128), (col * TAMAÑO_CUADRO , fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO))
+
+            # Calcular el centro de la casilla de destino
+            centro_x = col * TAMAÑO_CUADRO + TAMAÑO_CUADRO // 2
+            centro_y = fil * TAMAÑO_CUADRO + TAMAÑO_CUADRO // 2
+            # Dibujar un punto en el centro de la casilla de destino
+            radio = 5
+            pygame.draw.circle(pantalla, (255, 0, 0), (centro_x, centro_y), radio)
 
 #bucle principal del juego
 tablero = chess.Board()
@@ -137,10 +155,14 @@ while running:
             draw_board(tablero)
 
             # Dibujar la pieza seleccionada en la posición del mouse, si ésta está siendo arrastrada
-            if posicion_seleccionada is not None and posicion_mause is not None:            
+            if posicion_seleccionada is not None:
+                if posicion_mause is not None:
+                    x, y = posicion_mause                
+
                 pieza = tablero.piece_at(posicion_seleccionada)
+                posibles_movimientos_grafica(posicion_seleccionada, movimientos_seleccionados)
                 
-                if pieza.color == chess.WHITE:# Verificar el color de la pieza seleccionada y obtener la imagen adecuada
+                if pieza.color == chess.WHITE:
                     imagen_pieza = imagenes_piezas_blancas[pieza.piece_type]
                 else:
                     imagen_pieza = imagenes_piezas_negras[pieza.piece_type]
@@ -159,4 +181,3 @@ while running:
     clock.tick(60)
 
 pygame.quit()
-

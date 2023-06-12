@@ -25,6 +25,25 @@ imagenes_piezas_negras = {
     chess.KING: pygame.image.load("imagenes/rey-n.png")
 }
 
+imagenes_piezas_capturadas = {
+    chess.WHITE: {
+        chess.PAWN: pygame.image.load("imagenes/peon-b.png"),
+        chess.ROOK: pygame.image.load("imagenes/torre-b.png"),
+        chess.KNIGHT: pygame.image.load("imagenes/caballo-b.png"),
+        chess.BISHOP: pygame.image.load("imagenes/alfil-b.png"),
+        chess.QUEEN: pygame.image.load("imagenes/reina-b.png"),
+        chess.KING: pygame.image.load("imagenes/rey-b.png")
+    },
+    chess.BLACK: {
+        chess.PAWN: pygame.image.load("imagenes/peon-n.png"),
+        chess.ROOK: pygame.image.load("imagenes/torre-n.png"),
+        chess.KNIGHT: pygame.image.load("imagenes/caballo-n.png"),
+        chess.BISHOP: pygame.image.load("imagenes/alfil-n.png"),
+        chess.QUEEN: pygame.image.load("imagenes/reina-n.png"),
+        chess.KING: pygame.image.load("imagenes/rey-n.png")
+    }
+}
+
 #dimensiones y posición de cada cuadro del tablero
 TAMAÑO_CUADRO = ANCHO // 8
 
@@ -42,8 +61,44 @@ def draw_board(board):
                 else:
                     piece_image = imagenes_piezas_negras[pieza.piece_type]
                 piece_image = pygame.transform.scale(piece_image, (TAMAÑO_CUADRO, TAMAÑO_CUADRO))
+                #piece_rect = piece_image.get_rect(center=cuadro_rect.center)
                 pantalla.blit(piece_image, (col * TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO))
 
+                """ # Dibujar las piezas capturadas por el jugador blanco
+                x = TAMAÑO_CUADRO
+                y = ALTO - TAMAÑO_CUADRO
+                for piece_type, count in imagenes_piezas_capturadas[chess.WHITE].items():
+                    image = imagenes_piezas_blancas[piece_type]
+                    for _ in range(count):
+                        pantalla.blit(image, (x, y))
+                        x += TAMAÑO_CUADRO
+
+                # Dibujar las piezas capturadas por el jugador negro
+                x = TAMAÑO_CUADRO
+                y = 0
+                for piece_type, count in imagenes_piezas_capturadas[chess.BLACK].items():
+                    image = imagenes_piezas_negras[piece_type]
+                    for _ in range(count):
+                        pantalla.blit(image, (x, y))
+                        x += TAMAÑO_CUADRO """
+                
+
+#funcion para graficar los poibles movimientos
+def posibles_movimientos_grafica(posicion, movimientos):
+    for movimiento in movimientos:
+        if movimiento.from_square == posicion:
+            destino = movimiento.to_square
+            col = chess.square_file(destino)
+            fil = 7 - chess.square_rank(destino)
+            #dibujar todo el cuadro de opciones
+            #pygame.draw.rect(pantalla, (0, 255, 0, 128), (col * TAMAÑO_CUADRO , fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO))
+
+            # Calcular el centro de la casilla de destino
+            centro_x = col * TAMAÑO_CUADRO + TAMAÑO_CUADRO // 2
+            centro_y = fil * TAMAÑO_CUADRO + TAMAÑO_CUADRO // 2
+            # Dibujar un punto en el centro de la casilla de destino
+            radio = 5
+            pygame.draw.circle(pantalla, (255, 0, 0), (centro_x, centro_y), radio)
 
 #bucle principal del juego
 tablero = chess.Board()
@@ -109,6 +164,19 @@ while running:
                         
                     print("antes del atack")
                     if not tablero_temporal.is_attacked_by(piezas_atacantes, rey_posicion): # verificar que el rey del que realiza el movimiento no quede en jaque            
+                        
+                        #verificar la captura de la pieza contraria
+                        if tablero.is_capture(movimiento):
+                            pieza_capturada = tablero.piece_at(movimiento.to_square)
+                            pieza_capturada_color = pieza_capturada.color
+                            pieza_capturada_type = pieza_capturada.piece_type
+                            tablero.push(movimiento)
+
+                            # Cambiar el color de la pieza capturada y agregarla al diccionario de piezas capturadas
+                            pieza_capturada_color_opuesto = chess.WHITE if pieza_capturada_color == chess.BLACK else chess.BLACK
+                            imagenes_piezas_capturadas[pieza_capturada_color_opuesto].setdefault(pieza_capturada_type, 0)
+                            imagenes_piezas_capturadas[pieza_capturada_color_opuesto][pieza_capturada_type] += 1
+                        
                         # Detectar si un peón alcanza la última fila
                         pieza = tablero.piece_type_at(movimiento.from_square)
                         print("pieza",pieza)
@@ -137,18 +205,29 @@ while running:
             draw_board(tablero)
 
             # Dibujar la pieza seleccionada en la posición del mouse, si ésta está siendo arrastrada
-            if posicion_seleccionada is not None and posicion_mause is not None:            
-                pieza = tablero.piece_at(posicion_seleccionada)
-                
-                if pieza.color == chess.WHITE:# Verificar el color de la pieza seleccionada y obtener la imagen adecuada
-                    imagen_pieza = imagenes_piezas_blancas[pieza.piece_type]
-                else:
-                    imagen_pieza = imagenes_piezas_negras[pieza.piece_type]
+            if posicion_seleccionada is not None:
+                if posicion_mause is not None:
+                    x, y = posicion_mause                
 
-                imagen_pieza = pygame.transform.scale(imagen_pieza, (TAMAÑO_CUADRO, TAMAÑO_CUADRO))
-                piece_rect = imagen_pieza.get_rect()
+                pieza = tablero.piece_at(posicion_seleccionada)
+                posibles_movimientos_grafica(posicion_seleccionada, movimientos_seleccionados)
+                
+                if pieza.color == chess.WHITE:
+                    if pieza.piece_type in imagenes_piezas_capturadas[chess.WHITE]:
+                        piece_image = imagenes_piezas_capturadas[chess.WHITE][pieza.piece_type]
+                    else:
+                        piece_image = imagenes_piezas_blancas[pieza.piece_type]
+                else:
+                    if pieza.piece_type in imagenes_piezas_capturadas[chess.BLACK]:
+                        piece_image = imagenes_piezas_capturadas[chess.BLACK][pieza.piece_type]
+                    else:
+                        piece_image = imagenes_piezas_negras[pieza.piece_type]
+
+                piece_image = pygame.transform.scale(piece_image, (TAMAÑO_CUADRO, TAMAÑO_CUADRO))
+                piece_rect = piece_image.get_rect()
                 piece_rect.center = (x, y)
-                pantalla.blit(imagen_pieza, piece_rect)
+                pantalla.blit(piece_image, piece_rect)
+
 
     # Actualizar la pantalla
     pygame.display.flip()
@@ -159,4 +238,3 @@ while running:
     clock.tick(60)
 
 pygame.quit()
-
