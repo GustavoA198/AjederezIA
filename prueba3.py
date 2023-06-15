@@ -46,11 +46,11 @@ def draw_board(board):
                 pantalla.blit(piece_image, (col * TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO))
                 
 
-#funcion para graficar los poibles movimientos
-def posibles_movimientos_grafica(posicion, movimientos):
+#funcion para graficar los poibles movimientos           
+def posibles_movimientos_grafica(posicion, movimientos): 
     for movimiento in movimientos:
-        if movimiento.from_square == posicion:
-            destino = movimiento.to_square
+        if movimiento.from_square == posicion: 
+            destino = movimiento.to_square 
             col = chess.square_file(destino)
             fil = 7 - chess.square_rank(destino)
             #dibujar todo el cuadro de opciones
@@ -63,7 +63,7 @@ def posibles_movimientos_grafica(posicion, movimientos):
             radio = 5
             pygame.draw.circle(pantalla, (255, 0, 0), (centro_x, centro_y), radio)
 
-#bucle principal del juego
+#tablero del juego
 tablero = chess.Board()
 
 # Variable para almacenar el turno actual
@@ -113,7 +113,8 @@ while running:
                 movimiento = chess.Move(posicion_seleccionada, destino)
                 
                 #any() para verificar si existe algún movimiento en movimientos_seleccionados con las mismas posiciones de origen y destino que nuestro movimiento actual.
-                if any(movimiento.from_square == move.from_square and movimiento.to_square == move.to_square for move in movimientos_seleccionados):# Verificar si el movimiento es válido 
+                if any(movimiento.from_square == move.from_square and movimiento.to_square == move.to_square for move in movimientos_seleccionados):# Verificar si el movimiento es válido
+                #if movimiento in movimientos: 
                     tablero_temporal = tablero.copy()
                     tablero_temporal.push(movimiento)
                     

@@ -192,14 +192,10 @@ while running:
         #parte grafica__________________________________________________________________________________________
 
             # Dibujar el tablero y las piezas
-            draw_board(tablero)
-
-            
+            draw_board(tablero)            
 
             #grafica los posibles moovimientos
-            posibles_movimientos_grafica(posicion_seleccionada, movimientos_seleccionados) 
-
-            
+            posibles_movimientos_grafica(posicion_seleccionada, movimientos_seleccionados)             
 
             # Dibujar la pieza seleccionada en la posición del mouse, si ésta está siendo arrastrada
             if posicion_seleccionada is not None:
