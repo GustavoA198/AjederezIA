@@ -1,62 +1,85 @@
+import random
+import numpy as np
 import chess
-import pygame
 
 
-pygame.init()
-ANCHO, ALTO = 440, 440
-pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Ajedrez")
-clock = pygame.time.Clock()
+# Definición de la función para evaluar la posición en el tablero
+def evaluar_tablero(tablero):
+    # Aquí puedes implementar tu propia función de evaluación
+    # que asigne un valor a la posición actual del tablero
+    return random.randint(25, 35)
 
-# Cargar imágenes de las piezas en un diccionario
-imagenes_piezas_blancas = {
-    chess.PAWN: pygame.image.load("imagenes/peon-b.png"),
-    chess.ROOK: pygame.image.load("imagenes/torre-b.png"),
-    chess.KNIGHT: pygame.image.load("imagenes/caballo-b.png"),
-    chess.BISHOP: pygame.image.load("imagenes/alfil-b.png"),
-    chess.QUEEN: pygame.image.load("imagenes/reina-b.png"),
-    chess.KING: pygame.image.load("imagenes/rey-b.png")
-}
-imagenes_piezas_negras = {
-    chess.PAWN: pygame.image.load("imagenes/peon-n.png"),
-    chess.ROOK: pygame.image.load("imagenes/torre-n.png"),
-    chess.KNIGHT: pygame.image.load("imagenes/caballo-n.png"),
-    chess.BISHOP: pygame.image.load("imagenes/alfil-n.png"),
-    chess.QUEEN: pygame.image.load("imagenes/reina-n.png"),
-    chess.KING: pygame.image.load("imagenes/rey-n.png")
-}
-TAMAÑO_CUADRO = ANCHO // 8
-
-#Función para dibujar el tablero y las piezas:
-def draw_board(board):
+# Definición de la función para generar los movimientos posibles
+def generar_movimientos(tablero, piezas):
+    movimientos = tablero.legal_moves
     for fil in range(8):
         for col in range(8):
-            square_color = (255, 255, 255) if (fil + col) % 2 == 0 else (170, 131, 79)
-            pygame.draw.rect(pantalla, square_color, (col * TAMAÑO_CUADRO , fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO))
+            
+            pieza = tablero.piece_at(chess.square(col, 7 - fil))
+            if pieza is None:
+                for piezaAdd in piezas:
+                    destino = chess.square(col-8, 7 - fil)
+                    if not(piezaAdd.piece_type == chess.PAWN and (chess.square_rank(destino) in [0, 7])):
+                        movimientos.add((destino,piezaAdd))
+# Aquí debes implementar la generación de todos los movimientos
+    # legales a partir del estado actual del tablero y retornarlos
+    return movimientos
 
-            pieza = board.piece_at(chess.square(col, 7 - fil))
-            if pieza is not None:
-                if pieza.color == chess.WHITE:
-                    piece_image = imagenes_piezas_blancas[pieza.piece_type]
-                else:
-                    piece_image = imagenes_piezas_negras[pieza.piece_type]
-                piece_image = pygame.transform.scale(piece_image, (TAMAÑO_CUADRO, TAMAÑO_CUADRO))
-                #piece_rect = piece_image.get_rect(center=cuadro_rect.center)
-                pantalla.blit(piece_image, (col * TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO))
-                
-tablero = chess.Board()
+# Definición de la función para aplicar un 
+# movimiento al tablero
+def aplicar_movimiento(tablero, movimiento):
+    copia = tablero.copy()
+    if isinstance(movimiento, chess.Move):
+        copia.push(movimiento)
+    else:
+        copia.set_piece_at(movimiento[0], movimiento[1])
+        copia.turn = not copia.turn 
+    # Aquí debes implementar la lógica para aplicar un movimiento
+    # al tablero y retornar el nuevo tablero resultante
+    return copia
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: #cerrar el juego
-            running = False 
-        
-    draw_board(tablero)
-    pygame.time.delay(100)
-    Nf3 = chess.Move.from_uci("g1f3")
+# Definición de la función principal para la búsqueda con poda alpha-beta
+def minimax(tablero, profundidad, alpha, beta, jugador_max):
+    if profundidad == 0:
+        return evaluar_tablero(tablero)
 
-    pygame.display.flip()
-    clock.tick(60)
+    if jugador_max:
+        mejor_valor = float("-inf")
+        movimientos = generar_movimientos(tablero)
+        for movimiento in movimientos:
+            nuevo_tablero = aplicar_movimiento(tablero, movimiento)
+            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, False)
+            mejor_valor = max(mejor_valor, valor)
+            alpha = max(alpha, mejor_valor)
+            if beta <= alpha:
+                break
+        return mejor_valor
+    else:
+        mejor_valor = float("inf")
+        movimientos = generar_movimientos(tablero)
+        for movimiento in movimientos:
+            nuevo_tablero = aplicar_movimiento(tablero, movimiento)
+            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, True)
+            mejor_valor = min(mejor_valor, valor)
+            beta = min(beta, mejor_valor)
+            if beta <= alpha:
+                break
+        return mejor_valor
 
-pygame.quit()
+# Función para seleccionar el mejor movimiento usando el algoritmo minimax con poda alpha-beta
+def seleccionar_mejor_movimiento(tablero,piezasA):
+    mejor_movimiento = None
+    mejor_valor = float("-inf")
+    movimientos = generar_movimientos(tablero, piezasA)
+    for movimiento in movimientos:
+        nuevo_tablero = aplicar_movimiento(tablero, movimiento)
+        valor = minimax(nuevo_tablero, 4, float("-inf"), float("inf"), False)
+        if valor > mejor_valor:
+            mejor_valor = valor
+            mejor_movimiento = movimiento
+    return mejor_movimiento
+
+# Ejemplo de uso
+tablero = chess.Board()  # Tablero inicial
+mejor_movimiento = seleccionar_mejor_movimiento(tablero)
+print("El mejor movimiento es:", mejor_movimiento)
