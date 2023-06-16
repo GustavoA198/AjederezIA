@@ -1,5 +1,6 @@
 import chess
 import pygame
+import Ambiente as IA
 
 # Dimensiones del tablero y celdas. VARIABLES
 pygame.init()
@@ -131,104 +132,110 @@ pieza_capturada = None
 #_______________________ LOGICA DEL JUEGO ________________________________________________
 running = True
 while running:  
-    for event in pygame.event.get():      
-        if event.type == pygame.QUIT:
-            running = False
+    if tablero.turn == chess.BLACK:
+        for event in pygame.event.get():   
+            if event.type == pygame.QUIT:
+                running = False
 
-        # ... código para manejar el movimiento de las piezas ...    
-        elif event.type == pygame.MOUSEBUTTONDOWN:                          
-            if event.button == 1:  # Botón izquierdo -> CLICK 1   
-                mouse_x, mouse_y = pygame.mouse.get_pos()  # Obtener las coordenadas del clic
-                fil = mouse_y // TAMAÑO_CUADRO  # Convertir las coordenadas del clic en la posición de la celda
-                col = mouse_x // TAMAÑO_CUADRO  
+            # ... código para manejar el movimiento de las piezas ...    
+            elif event.type == pygame.MOUSEBUTTONDOWN:                          
+                if event.button == 1:  # Botón izquierdo -> CLICK 1   
+                    mouse_x, mouse_y = pygame.mouse.get_pos()  # Obtener las coordenadas del clic
+                    fil = mouse_y // TAMAÑO_CUADRO  # Convertir las coordenadas del clic en la posición de la celda
+                    col = mouse_x // TAMAÑO_CUADRO  
 
-                movimientos_seleccionados = list(tablero.legal_moves) #lista de movimientos legales
+                    movimientos_seleccionados = list(tablero.legal_moves) #lista de movimientos legales
 
-                if pieza_seleccionada is None:
-                    if col >= 8: #selecciono pieza del tablero loco
-                        posicion_seleccionada = chess.square(col-8, 7 - fil)
-                        pieza_seleccionada = tableroLoco.piece_at(posicion_seleccionada)
-                        pieza_seleccionada_borde = pygame.Rect(col* TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO)
-                        movimientos_seleccionados = [] #para que no se muestren movimientos del segundo tablero
-                        posicion_mayor = True
-                    else: #selecciono pieza del tablero normal
-                        posicion_seleccionada = chess.square(col, 7 - fil) # obtener la pieza que se encontraba en la posicion del click                
-                        pieza_seleccionada = tablero.piece_at(posicion_seleccionada)
-                        pieza_seleccionada_borde = pygame.Rect(col * TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO)    
-                    
-                #SEGUNDO CLICK
-                else:
-                    if col < 8:
-                        print("turno", tablero.turn)
-                        destino = chess.square(col, 7-fil)
+                    if pieza_seleccionada is None:
+                        if col >= 8: #selecciono pieza del tablero loco
+                            posicion_seleccionada = chess.square(col-8, 7 - fil)
+                            pieza_seleccionada = tableroLoco.piece_at(posicion_seleccionada)
+                            pieza_seleccionada_borde = pygame.Rect(col* TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO)
+                            movimientos_seleccionados = [] #para que no se muestren movimientos del segundo tablero
+                            posicion_mayor = True
+                        else: #selecciono pieza del tablero normal
+                            posicion_seleccionada = chess.square(col, 7 - fil) # obtener la pieza que se encontraba en la posicion del click                
+                            pieza_seleccionada = tablero.piece_at(posicion_seleccionada)
+                            pieza_seleccionada_borde = pygame.Rect(col * TAMAÑO_CUADRO, fil * TAMAÑO_CUADRO, TAMAÑO_CUADRO, TAMAÑO_CUADRO)    
+                        
+                    #SEGUNDO CLICK
+                    else:
+                        if col < 8:
+                            print("turno", tablero.turn)
+                            destino = chess.square(col, 7-fil)
 
-                        #CASO 1 -> colocar una ficha que ha sido capturada 
-                        if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn and posicion_mayor is True:  # Pieza válida seleccionada   
-                            if pieza_seleccionada.piece_type == chess.PAWN and not (chess.square_rank(destino) in [0, 7]) or pieza_seleccionada.piece_type != chess.PAWN:  #verifica que no se ponga un peon capturado en la ultima fila, chess.square_rank(destino) obtiene la fila                   
-                                if tablero.piece_at(destino) is None:
-                                    tablero.turn = not tablero.turn
-                                    tableroLoco.remove_piece_at(posicion_seleccionada) #eliminar la ficha usada del tablero loco
-                                    tablero.set_piece_at(destino, pieza_seleccionada) #tablero.set_piece_at(casilla, pieza)
-                                    posicion_mayor = False                          
-                                    #print("mov alterado","pieza",pieza_seleccionada, "destino", destino)
-                            
-                            #seteo de variables
-                            pieza_seleccionada_borde = None
-                            posicion_seleccionada = None
-                            pieza_seleccionada = None
-                            posicion_mayor = False
-                            destino = None                            
+                            #CASO 1 -> colocar una ficha que ha sido capturada 
+                            if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn and posicion_mayor is True:  # Pieza válida seleccionada   
+                                if pieza_seleccionada.piece_type == chess.PAWN and not (chess.square_rank(destino) in [0, 7]) or pieza_seleccionada.piece_type != chess.PAWN:  #verifica que no se ponga un peon capturado en la ultima fila, chess.square_rank(destino) obtiene la fila                   
+                                    if tablero.piece_at(destino) is None:
+                                        tablero.turn = not tablero.turn
+                                        tableroLoco.remove_piece_at(posicion_seleccionada) #eliminar la ficha usada del tablero loco
+                                        tablero.set_piece_at(destino, pieza_seleccionada) #tablero.set_piece_at(casilla, pieza)
+                                        posicion_mayor = False                          
+                                        #print("mov alterado","pieza",pieza_seleccionada, "destino", destino)
+                                
+                                #seteo de variables
+                                pieza_seleccionada_borde = None
+                                posicion_seleccionada = None
+                                pieza_seleccionada = None
+                                posicion_mayor = False
+                                destino = None                            
 
-                        #CASO 2 -> movimiento de una pieza dentro del tablero
-                        else:                                            
-                            if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn:  # Pieza válida seleccionada es valida ysi es el turno del jugador actual     
-                                #print("color de pieza select:", pieza_seleccionada.color)
-                                movimiento = chess.Move(posicion_seleccionada, destino) #creo un movimiento -> chess.Move(casilla_origen, casilla_destino)
-                                #print("origen", movimiento.from_square, "destino = ",movimiento.to_square)
-                                if any(movimiento.from_square == move.from_square and movimiento.to_square == move.to_square for move in movimientos_seleccionados):
-                                #if movimiento in movimientos_seleccionados:
-                                    tablero_temporal = tablero.copy()
-                                    tablero_temporal.push(movimiento)
-                                    # Obtener el rey y su posicion, del jugador que realiza el movimiento para verificar que el movimiento no deje a su rey en jaque
-                                    if tablero.turn == chess.WHITE:
-                                        rey_posicion = tablero_temporal.king(chess.WHITE)
-                                        piezas_atacantes = chess.BLACK
-                                    else:
-                                        rey_posicion = tablero_temporal.king(chess.BLACK)
-                                        piezas_atacantes = chess.WHITE
+                            #CASO 2 -> movimiento de una pieza dentro del tablero
+                            else:                                            
+                                if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn:  # Pieza válida seleccionada es valida ysi es el turno del jugador actual     
+                                    #print("color de pieza select:", pieza_seleccionada.color)
+                                    movimiento = chess.Move(posicion_seleccionada, destino) #creo un movimiento -> chess.Move(casilla_origen, casilla_destino)
+                                    #print("origen", movimiento.from_square, "destino = ",movimiento.to_square)
+                                    if any(movimiento.from_square == move.from_square and movimiento.to_square == move.to_square for move in movimientos_seleccionados):
+                                    #if movimiento in movimientos_seleccionados:
+                                        tablero_temporal = tablero.copy()
+                                        tablero_temporal.push(movimiento)
+                                        # Obtener el rey y su posicion, del jugador que realiza el movimiento para verificar que el movimiento no deje a su rey en jaque
+                                        if tablero.turn == chess.WHITE:
+                                            rey_posicion = tablero_temporal.king(chess.WHITE)
+                                            piezas_atacantes = chess.BLACK
+                                        else:
+                                            rey_posicion = tablero_temporal.king(chess.BLACK)
+                                            piezas_atacantes = chess.WHITE
 
-                                    # verificar que el rey del que realiza el movimiento no quede en jaque
-                                    if not tablero_temporal.is_attacked_by(piezas_atacantes, rey_posicion):
+                                        # verificar que el rey del que realiza el movimiento no quede en jaque
+                                        if not tablero_temporal.is_attacked_by(piezas_atacantes, rey_posicion):
 
-                                        # Cambiar la pieza capturada de color
-                                        pieza_capturada = tablero.piece_at(destino)  # Guardar la pieza capturada
-                                        print("Pieza capturada:", pieza_capturada)
-                                        if pieza_capturada is not None:
-                                            pieza_capturada = cambiar_color_pieza(pieza_capturada)
-                                            print("Pieza capturada color:", pieza_capturada) 
-                                            guardar_captura(pieza_capturada)                           
+                                            # Cambiar la pieza capturada de color
+                                            pieza_capturada = tablero.piece_at(destino)  # Guardar la pieza capturada
+                                            print("Pieza capturada:", pieza_capturada)
+                                            if pieza_capturada is not None:
+                                                pieza_capturada = cambiar_color_pieza(pieza_capturada)
+                                                print("Pieza capturada color:", pieza_capturada) 
+                                                guardar_captura(pieza_capturada)                           
 
-                                        # Detectar si un peón alcanza la última fila y merece promocion por una reina
-                                        pieza = tablero.piece_type_at(movimiento.from_square) 
-                                        if pieza == chess.PAWN and chess.square_rank(movimiento.to_square) in [0, 7]:
-                                            print("promocion bb")
-                                            # movimiento.promotion = chess.QUEEN
-                                            movimiento_promocion = chess.Move(movimiento.from_square, movimiento.to_square, promotion=chess.QUEEN)
-                                            tablero.push(movimiento_promocion)
-                                            #turno = not turno
+                                            # Detectar si un peón alcanza la última fila y merece promocion por una reina
+                                            pieza = tablero.piece_type_at(movimiento.from_square) 
+                                            if pieza == chess.PAWN and chess.square_rank(movimiento.to_square) in [0, 7]:
+                                                print("promocion bb")
+                                                # movimiento.promotion = chess.QUEEN
+                                                movimiento_promocion = chess.Move(movimiento.from_square, movimiento.to_square, promotion=chess.QUEEN)
+                                                tablero.push(movimiento_promocion)
+                                                #turno = not turno
 
-                                        else:                                        
-                                            tablero.push(movimiento)
-                                        #print("mov normal","pieza",pieza_seleccionada, "destino", destino)
-                                        #reiniciarVariables()#Reiniciar las variables del primer clic   
-                                                
-                    #reiniciarVariables
-                    destino = None
-                    pieza_seleccionada_borde = None
-                    posicion_seleccionada = None
-                    pieza_seleccionada = None
-                    pieza_capturada = None  
-                    posicion_mayor = False
+                                            else:                                        
+                                                tablero.push(movimiento)
+                                            #print("mov normal","pieza",pieza_seleccionada, "destino", destino)
+                                            #reiniciarVariables()#Reiniciar las variables del primer clic   
+                                                    
+                        #reiniciarVariables
+                        destino = None
+                        pieza_seleccionada_borde = None
+                        posicion_seleccionada = None
+                        pieza_seleccionada = None
+                        pieza_capturada = None  
+                        posicion_mayor = False
+    else:
+        movimiento = IA.seleccionar_mejor_movimiento(tablero,[])
+        tablero.push(movimiento)
+
+
         
     # Llamado de funciones
     draw_board(tablero,tableroLoco)
