@@ -12,6 +12,18 @@ clock = pygame.time.Clock()
 # Colores
 BLANCO = (255, 255, 255)
 CAFE = (170, 131, 79)
+#retorna una tupla con las piezas del tablero loco
+def piezas_capturadas_tupla():
+    tupla =[[],[]]    
+    for fil in range(8):
+        for col in range(2):
+            cuadro = chess.square(col, fil)
+            pieza = tableroLoco.piece_at(cuadro)
+            if pieza is not None and col == 0:
+                tupla[0].append(pieza)
+            elif pieza is not None and col == 1:
+                tupla[1].append(pieza)
+    return tupla
 
 # Cargar imágenes de las piezas en un diccionario
 imagenes_piezas_blancas = {
@@ -74,6 +86,13 @@ def cambiar_color_pieza(pieza):
     else:
         pieza_nueva = chess.Piece(piece_type=pieza.piece_type, color=chess.WHITE)
     return pieza_nueva
+
+
+def eliminar_pieza(pieza):
+    # Iterar sobre todas las casillas del tablero
+    for casilla in chess.SQUARES:
+        if tableroLoco.piece_at(casilla) == pieza:
+            tableroLoco.remove_piece_at(casilla) 
 
 # función para graficar los posibles movimientos de una pieza seleccionada
 def posibles_movimientos_grafica(posicion_seleccionada, movimientos):
@@ -146,7 +165,7 @@ pieza_capturada = None
 
 #_______________________ LOGICA DEL JUEGO ________________________________________________
 running = True
-while running:  
+while running:
     if tablero.turn == chess.BLACK:
         for event in pygame.event.get():   
             if event.type == pygame.QUIT:
@@ -197,7 +216,8 @@ while running:
                                 destino = None                            
 
                             #CASO 2 -> movimiento de una pieza dentro del tablero
-                            else:                                            
+
+                            else:                                          
                                 if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn:  # Pieza válida seleccionada es valida ysi es el turno del jugador actual     
                                     #print("color de pieza select:", pieza_seleccionada.color)
                                     movimiento = chess.Move(posicion_seleccionada, destino) #creo un movimiento -> chess.Move(casilla_origen, casilla_destino)
@@ -235,9 +255,20 @@ while running:
                                                 #turno = not turno
 
                                             else:                                        
-                                                tablero.push(movimiento)
-                                            #print("mov normal","pieza",pieza_seleccionada, "destino", destino)
-                                            #reiniciarVariables()#Reiniciar las variables del primer clic   
+                                                if isinstance(movimiento, chess.Move):
+                                                    tablero.push(movimiento)
+
+                                                else:
+                                                    tablero.set_piece_at(movimiento[0], movimiento[1])
+                                                    tablero.turn = not tablero.turn 
+                                """  
+                                tableroia = IA.Tablero(tablero,[],[])
+                                print(IA.evaluar_tablero(tableroia) , "VALOR tableroo")
+                                for i in IA.generar_movimientos(tableroia):
+                                    IA.aplicar_movimiento(tableroia,i)   """
+                                        #print("mov normal","pieza",pieza_seleccionada, "destino", destino)
+                                            #reiniciarVariables()#Reiniciar las variables del primer clic 
+                                          
                                                     
                         #reiniciarVariables
                         destino = None
@@ -247,8 +278,19 @@ while running:
                         pieza_capturada = None  
                         posicion_mayor = False
     else:
-        movimiento = IA.seleccionar_mejor_movimiento(tablero,[])
-        tablero.push(movimiento)
+        movimiento = IA.seleccionar_mejor_movimiento(tablero,piezas_capturadas_tupla())
+        if isinstance(movimiento, chess.Move):
+            pieza_capturada =tablero.piece_at(movimiento.to_square)
+            if  pieza_capturada is not None:
+                pieza_capturada = cambiar_color_pieza(pieza_capturada)
+                guardar_captura(pieza_capturada)
+            tablero.push(movimiento)
+        else:
+            eliminar_pieza(movimiento[1]) 
+            tablero.set_piece_at(movimiento[0], movimiento[1])
+            tablero.turn = not tablero.turn
+        pieza_capturada = None 
+
 
 
         
@@ -270,8 +312,10 @@ while running:
             text = font.render("Jaque Mate", True, (255, 0, 0))# Dibujar la palabra "Jaque Mate" en el tablero
             text_rect = text.get_rect(center=(ANCHO // 2, ALTO // 2))
             pantalla.blit(text, text_rect)
+            pygame.time.delay(100000)
 
-    pygame.display.flip()
+    
+    pygame.display.flip()  
     clock.tick(60)
 
 pygame.quit()
