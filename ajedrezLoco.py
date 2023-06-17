@@ -115,6 +115,21 @@ def guardar_captura(pieza_capturada):
         if pieza is None:
             tableroLoco.set_piece_at(cuadro,pieza_capturada)
             return
+        
+#retorna una tupla con las piezas del tablero loco
+def piezas_capturadas_tupla():
+    tupla =[[],[]]    
+    for fil in range(8):
+        for col in range(2):
+            cuadro = chess.square(col, fil)
+            pieza = tableroLoco.piece_at(cuadro)
+            if pieza is not None and col == 0:
+                tupla[0].append(pieza)
+            elif pieza is not None and col == 1:
+                tupla[1].append(pieza)
+    return tupla
+
+                
 
 # tablero del juego
 pantalla.fill((255, 255, 255))  # Establecer el fondo en blanco
