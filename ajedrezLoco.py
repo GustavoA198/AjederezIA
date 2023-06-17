@@ -201,7 +201,8 @@ while running:
                                 destino = None                            
 
                             #CASO 2 -> movimiento de una pieza dentro del tablero
-                            else:                                            
+
+                            else:                                          
                                 if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn:  # Pieza válida seleccionada es valida ysi es el turno del jugador actual     
                                     #print("color de pieza select:", pieza_seleccionada.color)
                                     movimiento = chess.Move(posicion_seleccionada, destino) #creo un movimiento -> chess.Move(casilla_origen, casilla_destino)
@@ -245,8 +246,14 @@ while running:
                                                 else:
                                                     tablero.set_piece_at(movimiento[0], movimiento[1])
                                                     tablero.turn = not tablero.turn 
-                                            #print("mov normal","pieza",pieza_seleccionada, "destino", destino)
-                                            #reiniciarVariables()#Reiniciar las variables del primer clic   
+                                """  
+                                tableroia = IA.Tablero(tablero,[],[])
+                                print(IA.evaluar_tablero(tableroia) , "VALOR tableroo")
+                                for i in IA.generar_movimientos(tableroia):
+                                    IA.aplicar_movimiento(tableroia,i)   """
+                                        #print("mov normal","pieza",pieza_seleccionada, "destino", destino)
+                                            #reiniciarVariables()#Reiniciar las variables del primer clic 
+                                          
                                                     
                         #reiniciarVariables
                         destino = None
