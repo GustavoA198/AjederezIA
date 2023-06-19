@@ -144,7 +144,7 @@ def seleccionar_mejor_movimiento(tableroAL,piezas):
     movimientos = generar_movimientos(tablero)
     for movimiento in movimientos:
         nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-        valor = minimax(nuevo_tablero, 2, float("-inf"), float("inf"), False)
+        valor = minimax(nuevo_tablero, 3, float("-inf"), float("inf"), False)
         if valor > mejor_valor:
             mejor_valor = valor
             mejor_movimiento = movimiento
