@@ -4,7 +4,7 @@ import Ambiente as IA
 
 # Dimensiones del tablero y celdas. VARIABLES
 pygame.init()
-ANCHO, ALTO = 800, 640
+ANCHO, ALTO = 680, 544
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Ajedrez")
 clock = pygame.time.Clock()

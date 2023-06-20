@@ -15,7 +15,6 @@ class Tablero:
         self.piezasB = piezasB
         self.piezasN = piezasN
         
-global pieza
 valorDePieza = {
     chess.PAWN: 10,
     chess.ROOK: 50,
@@ -24,7 +23,6 @@ valorDePieza = {
     chess.QUEEN: 90,
     chess.KING: 900
 }
-
 
 # Definición de la función para evaluar la posición en el tablero
 def evaluar_tablero(tablero):
@@ -76,6 +74,7 @@ def generar_movimientos(tablero):
 
 # Definición de la función para aplicar un 
 # movimiento al tablero
+
 def aplicar_movimiento(tablero, movimiento):
     tableroOBJ_copia = tablero
     tablero_copia = tableroOBJ_copia.tablero.copy()
@@ -104,13 +103,13 @@ def aplicar_movimiento(tablero, movimiento):
     # Aquí debes implementar la lógica para aplicar un movimiento
     # al tablero y retornar el nuevo tablero resultante
     #print(tablero_copia)
+
     return Tablero(tablero_copia, piezasB_copia,piezasN_copia)
 
 # Definición de la función principal para la búsqueda con poda alpha-beta
 def minimax(tablero, profundidad, alpha, beta, jugador_max):
     if profundidad == 0:
         return evaluar_tablero(tablero)
-
     if jugador_max:
         mejor_valor = float("-inf")
         movimientos = generar_movimientos(tablero)
@@ -120,8 +119,7 @@ def minimax(tablero, profundidad, alpha, beta, jugador_max):
             mejor_valor = max(mejor_valor, valor)
             alpha = max(alpha, mejor_valor)
             if beta <= alpha:
-                a=0
-                ##break
+                break
         return mejor_valor
     else:
         mejor_valor = float("inf")
@@ -132,11 +130,12 @@ def minimax(tablero, profundidad, alpha, beta, jugador_max):
             mejor_valor = min(mejor_valor, valor)
             beta = min(beta, mejor_valor)
             if beta <= alpha:
-                a=0
-                ##break
+                break
         return mejor_valor
 
 # Función para seleccionar el mejor movimiento usando el algoritmo minimax con poda alpha-beta
+
+
 def seleccionar_mejor_movimiento(tableroAL,piezas):
     tablero = Tablero(tableroAL,piezas[0],piezas[1])
     mejor_movimiento = None
