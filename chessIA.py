@@ -1,20 +1,25 @@
 import chess
+import metodos
 
+tablero = chess.Board
+nodo1 = metodos.Tablero(tablero,[],[])
 class Nodo:
-    def __init__(self, tablero, tipoNodo,Profundidad, Padre, movimiento):
-        self.tablero = tablero
-        self.tipoNodo = tipoNodo
-        self.profundidad = Profundidad
-        self.padre = Padre
-        self.Utilidad = self.CalcUtilidad()
-        self.movimiento = movimiento
+    def __init__(self, tablero, mov):
+        self.tablero = metodos.Tablero(tablero.table, tablero.piezasB,tablero.piezasN)                                       )
+        self.tipoNodo = tablero.tablero.turn
+        self.Utilidad = metodos.evaluar_tablero(tablero)
+        self.Tableros  = metodos.generarTableros(tablero)
 
-    def CalcUtilidad(self):
-        return 1
+def crearArbol (nodo , profundidad):
+    if profundidad ==0:
+        return metodos.evaluar_tablero(nodo.tablero)
+    else:
+        return crearArbol()
+        
+              
+   
+   
 
 
-def CrearHijos (Nodo):
-    for fil in range(8):
-        for col in range(8):
-            
-            pieza = tablero.piece_at(chess.square(col, 7 - fil))
+   
+
