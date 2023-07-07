@@ -50,7 +50,7 @@ def evaluar_tablero(tablero):
 
 # Definición de la función para generar los movimientos posibles
 def generar_movimientos(tablero):
-    movimientoAdd =list( tablero.tablero.legal_moves)
+    movimientoAdd =list(tablero.tablero.legal_moves)
     for fil in range(8):
         for col in range(8):
             
@@ -58,7 +58,7 @@ def generar_movimientos(tablero):
             if pieza is None:
                 if tablero.tablero.turn == chess.WHITE:
                     for piezaAdd in tablero.piezasB:
-                        destino = chess.square(col, 7-fil)
+                        destino = chess.square(col, 7-fil)#posicion de la libreria chess
                         if not(piezaAdd.piece_type == chess.PAWN and (chess.square_rank(destino) in [0, 7])):
                             movimientoAdd.append((destino,piezaAdd))
                 else:
@@ -89,17 +89,15 @@ def aplicar_movimiento(tablero, movimiento):
                 piezasB_copia.append(Pieza_Capturada)
             else:
                 piezasN_copia.append(Pieza_Capturada)
-
-    else:
+    #pasamos pieza del verde a tablero normal
+    else: #tablero verde
         #print("ENTROOOOOOOOO")
         if movimiento[1] in tablero.piezasN:
-            piezasN_copia.remove(movimiento[1])
+            piezasN_copia.remove(movimiento[1])#quitamos la pieza
         elif  movimiento[1] in tablero.piezasB:
             piezasB_copia.remove(movimiento[1])
-        tablero_copia.set_piece_at(movimiento[0], movimiento[1])
+        tablero_copia.set_piece_at(movimiento[0], movimiento[1]) #agregar pieza
         tablero_copia.turn = not tablero_copia.turn 
-    # Aquí debes implementar la lógica para aplicar un movimiento
-    # al tablero y retornar el nuevo tablero resultante
     #print(tablero_copia)
 
     return Tablero(tablero_copia, piezasB_copia,piezasN_copia)
@@ -113,7 +111,7 @@ def minimax(tablero, profundidad, alpha, beta, jugador_max):
         movimientos = generar_movimientos(tablero)
         for movimiento in movimientos:
             nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, False)
+            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, False) ##
             mejor_valor = max(mejor_valor, valor)
             alpha = max(alpha, mejor_valor)
             if beta <= alpha:
@@ -124,12 +122,12 @@ def minimax(tablero, profundidad, alpha, beta, jugador_max):
         movimientos = generar_movimientos(tablero)
         for movimiento in movimientos:
             nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, True)
-            mejor_valor = min(mejor_valor, valor)
-            beta = min(beta, mejor_valor)
-            if beta <= alpha:
+            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, True) ##2
+            mejor_valor = min(mejor_valor, valor)   
+            beta = min(beta, mejor_valor) #10
+            if beta <= alpha:#poda
                 break
-        return mejor_valor
+        return mejor_valor #
 
 # Función para seleccionar el mejor movimiento usando el algoritmo minimax con poda alpha-beta
 
@@ -139,12 +137,14 @@ def seleccionar_mejor_movimiento(tableroAL,piezas):
     mejor_movimiento = None
     mejor_valor = float("-inf")
     movimientos = generar_movimientos(tablero)
+    alpha = float("-inf")
     for movimiento in movimientos:
         nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-        valor = minimax(nuevo_tablero, 3, float("-inf"), float("inf"), False)
+        valor = minimax(nuevo_tablero, 2, alpha , float("inf"), False)
         if valor > mejor_valor:
-            mejor_valor = valor
+            mejor_valor = valor #10
             mejor_movimiento = movimiento
+            alpha = mejor_valor #10
 
     return mejor_movimiento
 
