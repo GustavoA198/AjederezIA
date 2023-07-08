@@ -6,7 +6,7 @@ import IALoca as IA
 pygame.init()
 ANCHO, ALTO = 680, 544
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Ajedrez")
+pygame.display.set_caption("Ajedrez Loco")
 clock = pygame.time.Clock()
 
 # Colores

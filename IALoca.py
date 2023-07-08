@@ -92,9 +92,7 @@ def evaluar_tablero(tablero):
         Heuristica += valorDePieza[pieza.piece_type][8]
 
     for pieza in tablero.piezasN:
-        Heuristica -= valorDePieza[pieza.piece_type][8]
-    ##print(Heuristica , "hhh\n" , len(tablero.piezasB) , len(tablero.piezasN), tablero.tablero)  
-     
+        Heuristica -= valorDePieza[pieza.piece_type][8] 
     return Heuristica
 
 # Definición de la función para generar los movimientos posibles
@@ -132,22 +130,19 @@ def aplicar_movimiento(tablero, movimiento):
         Pieza_Capturada =tablero_copia.piece_at(movimiento.to_square)
         tablero_copia.push(movimiento)
         if  Pieza_Capturada is not None:
-            ##print("ENTROOOOOOOOO892379847928479")
             Pieza_Capturada = cambiar_color_pieza(Pieza_Capturada) 
             if Pieza_Capturada.color == chess.WHITE:
                 piezasB_copia.append(Pieza_Capturada)
             else:
                 piezasN_copia.append(Pieza_Capturada)
-    #pasamos pieza del verde a tablero normal
-    else: #tablero verde
-        #print("ENTROOOOOOOOO")
+    #pasamos pieza del loco a tablero normal
+    else: #tablero loco
         if movimiento[1] in tablero.piezasN:
             piezasN_copia.remove(movimiento[1])#quitamos la pieza
         elif  movimiento[1] in tablero.piezasB:
             piezasB_copia.remove(movimiento[1])
         tablero_copia.set_piece_at(movimiento[0], movimiento[1]) #agregar pieza
         tablero_copia.turn = not tablero_copia.turn 
-    #print(tablero_copia)
 
     return Tablero(tablero_copia, piezasB_copia,piezasN_copia)
 
@@ -173,14 +168,12 @@ def minimax(tablero, profundidad, alpha, beta, jugador_max):
             nuevo_tablero = aplicar_movimiento(tablero, movimiento)
             valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, True) ##2
             mejor_valor = min(mejor_valor, valor)   
-            beta = min(beta, mejor_valor) #10
-            if beta <= alpha:#poda
+            beta = min(beta, mejor_valor) 
+            if beta <= alpha:
                 break
-        return mejor_valor #
+        return mejor_valor 
 
 # Función para seleccionar el mejor movimiento usando el algoritmo minimax con poda alpha-beta
-
-
 def seleccionar_mejor_movimiento(tableroAL,piezas):
     tablero = Tablero(tableroAL,piezas[0],piezas[1])
     mejor_movimiento = None
@@ -189,18 +182,10 @@ def seleccionar_mejor_movimiento(tableroAL,piezas):
     alpha = float("-inf")
     for movimiento in movimientos:
         nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-        valor = minimax(nuevo_tablero, 0, alpha , float("inf"),False)
+        valor = minimax(nuevo_tablero, 2, alpha , float("inf"),False)
         if valor > mejor_valor:
-            mejor_valor = valor #10
+            mejor_valor = valor 
             mejor_movimiento = movimiento
-            alpha = mejor_valor #10
+            alpha = mejor_valor 
 
     return mejor_movimiento
-
-# Ejemplo de uso
-""" tablero1 = chess.Board()  # Tablero inicial
-piezaaaa=chess.Piece(chess.PAWN,chess.WHITE)
-piezaaa=chess.Piece(chess.PAWN,chess.BLACK)
-tablero = Tablero(tablero1,[piezaaaa,piezaaaa],[piezaaa])
-mejor_movimiento = minimax(tablero, 0, float("-inf"), float("inf"), False)
-print("El mejor movimiento es:", mejor_movimiento) """
