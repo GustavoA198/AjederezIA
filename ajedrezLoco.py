@@ -248,7 +248,7 @@ while running:
                         pieza_capturada = None  
                         posicion_mayor = False
                         lastMoveIA = None
-    elif jaqueMate:
+    elif jaqueMate: ##TURNO IA
         movimiento = IA.seleccionar_mejor_movimiento(tablero,piezas_capturadas_tupla())
         if isinstance(movimiento, chess.Move):
             pieza_capturada =tablero.piece_at(movimiento.to_square)
