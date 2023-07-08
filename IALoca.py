@@ -14,12 +14,66 @@ class Tablero:
         self.piezasN = piezasN
         
 valorDePieza = {
-    chess.PAWN: 10,
-    chess.ROOK: 50,
-    chess.KNIGHT: 30,
-    chess.BISHOP: 30,
-    chess.QUEEN: 90,
-    chess.KING: 900
+    chess.PAWN: [[10,10,10,10,10,10,10,10],
+                [15,15,15,15,15,15,15,15],
+                [11,11,12,13,13,12,11,11],
+                [10.5,10.5,11,12.5,12.5,11,10.5,10.5],
+                [10,11,11,13,13,11,11,10],
+                [10.5,11,11,12,12,11,11,10.5],
+                [10.5,8,8,8,8,8,8,10.5],
+                [10,10,10,10,10,10,10,10],
+                10],
+
+    chess.ROOK: [[50,50,50,50,50,50,50,50],
+                 [50.5,51,51,51,51,51,51,50.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [50,50,50,50.5,50.5,50,50,50],
+                 50],
+
+    chess.KNIGHT: [[25,26,27,27,27,27,26,25],
+                   [26,28,30,30,30,30,28,26],
+                   [27,30,31,31.5,31.5,31,30,27],
+                   [27,30.5,31.5,32,32,31.5,30.5,27],
+                   [27,30,31.5,32,32,31.5,30,27],
+                   [27,30.5,31.5,32,32,31.5,30.5,27],
+                   [26,28,30,30,30,30,28,26],
+                   [25,26,27,27,27,27,26,25],
+                   30
+                   ],
+    chess.BISHOP: [[28,29,29,29,29,29,29,28],
+                   [29,30,30,30,30,30,30,29],
+                   [29,30,30.5,31,31,30.5,30,29],
+                   [29,30.5,30.5,31,31,30.5,30.5,29],
+                   [29,30,31,31,31,31,30,29],
+                   [29,31,31,31,31,31,31,29],
+                   [29,30.5,30,30,30,30,30.5,29],
+                   [28,29,29,29,29,29,29,28],
+                    30
+                   ],
+    chess.QUEEN: [[88,89,89,89.5,89.5,89,89,88],
+                  [89,90,90,90,90,90,90,89],
+                  [89,90,90.5,90.5,90.5,90.5,90,89],
+                  [89.5,90,90.5,90.5,90.5,90.5,90,89.5],
+                  [90,90,90.5,90.5,90.5,90.5,90,89.5],
+                  [89,90.5,90.5,90.5,90.5,90,89,89],
+                  [89,90,90.5,90,90,90,90,89],
+                  [88,89,89,89.5,89.5,89,89,88],
+                  90
+                  ],
+    chess.KING: [[897,896,896,895,895,896,896,897],
+                 [897,896,896,895,895,896,896,897],
+                 [897,896,896,895,895,896,896,897],
+                 [897,896,896,895,895,896,896,897],
+                 [898,897,897,896,896,897,897,898],
+                 [899,898,898,898,898,898,898,899],
+                 [902,902,900,900,900,900,902,902],
+                 [902,903,901,900,900,901,903,902],
+                 900
+                 ]
 }
 
 # Definición de la función para evaluar la posición en el tablero
@@ -28,22 +82,17 @@ def evaluar_tablero(tablero):
     for fil in range(8):
         for col in range(8):
             pieza = tablero.tablero.piece_at(chess.square(col,fil))
-            if fil>2 and fil<5 and col>1 and col<6 and pieza is not None:
+            if pieza is not None:
                 if pieza.color == chess.WHITE:
-                    Heuristica += valorDePieza[pieza.piece_type]*2
+                    Heuristica += valorDePieza[pieza.piece_type][fil][col]
                 else:
-                    Heuristica -= valorDePieza[pieza.piece_type]*2
-            elif pieza is not None:
-                if pieza.color == chess.WHITE:
-                    Heuristica += valorDePieza[pieza.piece_type]
-                else:
-                    Heuristica -= valorDePieza[pieza.piece_type]
+                    Heuristica -= valorDePieza[pieza.piece_type][7-fil][7-col]
 
     for pieza in tablero.piezasB:
-        Heuristica += valorDePieza[pieza.piece_type]*0.9
+        Heuristica += valorDePieza[pieza.piece_type][8]
 
     for pieza in tablero.piezasN:
-        Heuristica -= valorDePieza[pieza.piece_type]*0.9
+        Heuristica -= valorDePieza[pieza.piece_type][8]
     ##print(Heuristica , "hhh\n" , len(tablero.piezasB) , len(tablero.piezasN), tablero.tablero)  
      
     return Heuristica
@@ -140,7 +189,7 @@ def seleccionar_mejor_movimiento(tableroAL,piezas):
     alpha = float("-inf")
     for movimiento in movimientos:
         nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-        valor = minimax(nuevo_tablero, 2, alpha , float("inf"), False)
+        valor = minimax(nuevo_tablero, 2, alpha , float("inf"),False)
         if valor > mejor_valor:
             mejor_valor = valor #10
             mejor_movimiento = movimiento
