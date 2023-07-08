@@ -192,8 +192,11 @@ while running:
 
                             #CASO 1 -> colocar una ficha que ha sido capturada 
                             if pieza_seleccionada is not None and pieza_seleccionada.color == tablero.turn and posicion_mayor is True:  # Pieza válida seleccionada   
+                                tablero_temporal = tablero.copy()
+                                tablero_temporal.set_piece_at(destino, pieza_seleccionada) #tablero.set_piece_at(casilla, pieza)
+                                tablero_temporal .turn = not tablero.turn
                                 if pieza_seleccionada.piece_type == chess.PAWN and not (chess.square_rank(destino) in [0, 7]) or pieza_seleccionada.piece_type != chess.PAWN:  #verifica que no se ponga un peon capturado en la ultima fila, chess.square_rank(destino) obtiene la fila                   
-                                    if tablero.piece_at(destino) is None:
+                                    if tablero.piece_at(destino) is None and not tablero_temporal.is_attacked_by(chess.WHITE, tablero_temporal.king(chess.BLACK)):
                                         tablero.turn = not tablero.turn
                                         tableroLoco.remove_piece_at(posicion_seleccionada) #eliminar la ficha usada del tablero loco
                                         tablero.set_piece_at(destino, pieza_seleccionada) #tablero.set_piece_at(casilla, pieza)
@@ -218,41 +221,24 @@ while running:
                                     #if movimiento in movimientos_seleccionados:
                                         tablero_temporal = tablero.copy()
                                         tablero_temporal.push(movimiento)
-                                        # Obtener el rey y su posicion, del jugador que realiza el movimiento para verificar que el movimiento no deje a su rey en jaque
-                                        if tablero.turn == chess.WHITE:
-                                            rey_posicion = tablero_temporal.king(chess.WHITE)
-                                            piezas_atacantes = chess.BLACK
-                                        else:
-                                            rey_posicion = tablero_temporal.king(chess.BLACK)
-                                            piezas_atacantes = chess.WHITE
-
+                                        
                                         # verificar que el rey del que realiza el movimiento no quede en jaque
-                                        if not tablero_temporal.is_attacked_by(piezas_atacantes, rey_posicion):
+                                        if not tablero_temporal.is_attacked_by(chess.WHITE, tablero_temporal.king(chess.BLACK)):
 
                                             # Cambiar la pieza capturada de color
                                             pieza_capturada = tablero.piece_at(destino)  # Guardar la pieza capturada
-                                            print("Pieza capturada:", pieza_capturada)
                                             if pieza_capturada is not None:
                                                 pieza_capturada = cambiar_color_pieza(pieza_capturada)
-                                                print("Pieza capturada color:", pieza_capturada) 
                                                 guardar_captura(pieza_capturada)                           
 
                                             # Detectar si un peón alcanza la última fila y merece promocion por una reina
                                             pieza = tablero.piece_type_at(movimiento.from_square) 
                                             if pieza == chess.PAWN and chess.square_rank(movimiento.to_square) in [0, 7]:
-                                                print("promocion bb")
-                                                # movimiento.promotion = chess.QUEEN
                                                 movimiento_promocion = chess.Move(movimiento.from_square, movimiento.to_square, promotion=chess.QUEEN)
                                                 tablero.push(movimiento_promocion)
-                                                #turno = not turno
 
-                                            else:                                        
-                                                if isinstance(movimiento, chess.Move):
-                                                    tablero.push(movimiento)
-
-                                                else:
-                                                    tablero.set_piece_at(movimiento[0], movimiento[1])
-                                                    tablero.turn = not tablero.turn 
+                                            else:                    
+                                                tablero.push(movimiento)
                             
                         #reiniciarVariables
                         destino = None

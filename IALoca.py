@@ -116,7 +116,7 @@ def generar_movimientos(tablero):
                         if not(piezaAdd.piece_type == chess.PAWN and (chess.square_rank(destino) in [0, 7])):
                             movimientoAdd.append((destino,piezaAdd))
 # Aquí debes implementar la generación de todos los movimientos
-    # legales a partir del estado actual del tablero y retornarlos
+    #legales a partir del estado actual del tablero y retornarlos
     return movimientoAdd
 
 # Definición de la función para aplicar un 
@@ -189,7 +189,7 @@ def seleccionar_mejor_movimiento(tableroAL,piezas):
     alpha = float("-inf")
     for movimiento in movimientos:
         nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-        valor = minimax(nuevo_tablero, 2, alpha , float("inf"),False)
+        valor = minimax(nuevo_tablero, 0, alpha , float("inf"),False)
         if valor > mejor_valor:
             mejor_valor = valor #10
             mejor_movimiento = movimiento
