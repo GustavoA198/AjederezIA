@@ -1,5 +1,3 @@
-import random
-import numpy as np
 import chess
 
 def cambiar_color_pieza(pieza):
@@ -15,16 +13,68 @@ class Tablero:
         self.piezasB = piezasB
         self.piezasN = piezasN
         
-global pieza
 valorDePieza = {
-    chess.PAWN: 10,
-    chess.ROOK: 50,
-    chess.KNIGHT: 30,
-    chess.BISHOP: 30,
-    chess.QUEEN: 90,
-    chess.KING: 900
-}
+    chess.PAWN: [[10,10,10,10,10,10,10,10],
+                [15,15,15,15,15,15,15,15],
+                [11,11,12,13,13,12,11,11],
+                [10.5,10.5,11,12.5,12.5,11,10.5,10.5],
+                [10,11,11,13,13,11,11,10],
+                [10.5,11,11,12,12,11,11,10.5],
+                [10.5,8,8,8,8,8,8,10.5],
+                [10,10,10,10,10,10,10,10],
+                10],
 
+    chess.ROOK: [[50,50,50,50,50,50,50,50],
+                 [50.5,51,51,51,51,51,51,50.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [49.5,50,50,50,50,50,50,49.5],
+                 [50,50,50,50.5,50.5,50,50,50],
+                 50],
+
+    chess.KNIGHT: [[25,26,27,27,27,27,26,25],
+                   [26,28,30,30,30,30,28,26],
+                   [27,30,31,31.5,31.5,31,30,27],
+                   [27,30.5,31.5,32,32,31.5,30.5,27],
+                   [27,30,31.5,32,32,31.5,30,27],
+                   [27,30.5,31.5,32,32,31.5,30.5,27],
+                   [26,28,30,30,30,30,28,26],
+                   [25,26,27,27,27,27,26,25],
+                   30
+                   ],
+    chess.BISHOP: [[28,29,29,29,29,29,29,28],
+                   [29,30,30,30,30,30,30,29],
+                   [29,30,30.5,31,31,30.5,30,29],
+                   [29,30.5,30.5,31,31,30.5,30.5,29],
+                   [29,30,31,31,31,31,30,29],
+                   [29,31,31,31,31,31,31,29],
+                   [29,30.5,30,30,30,30,30.5,29],
+                   [28,29,29,29,29,29,29,28],
+                    30
+                   ],
+    chess.QUEEN: [[88,89,89,89.5,89.5,89,89,88],
+                  [89,90,90,90,90,90,90,89],
+                  [89,90,90.5,90.5,90.5,90.5,90,89],
+                  [89.5,90,90.5,90.5,90.5,90.5,90,89.5],
+                  [90,90,90.5,90.5,90.5,90.5,90,89.5],
+                  [89,90.5,90.5,90.5,90.5,90,89,89],
+                  [89,90,90.5,90,90,90,90,89],
+                  [88,89,89,89.5,89.5,89,89,88],
+                  90
+                  ],
+    chess.KING: [[897,896,896,895,895,896,896,897],
+                 [897,896,896,895,895,896,896,897],
+                 [897,896,896,895,895,896,896,897],
+                 [897,896,896,895,895,896,896,897],
+                 [898,897,897,896,896,897,897,898],
+                 [899,898,898,898,898,898,898,899],
+                 [902,902,900,900,900,900,902,902],
+                 [902,903,901,900,900,901,903,902],
+                 900
+                 ]
+}
 
 # Definición de la función para evaluar la posición en el tablero
 def evaluar_tablero(tablero):
@@ -32,29 +82,22 @@ def evaluar_tablero(tablero):
     for fil in range(8):
         for col in range(8):
             pieza = tablero.tablero.piece_at(chess.square(col,fil))
-            if fil>2 and fil<5 and col>1 and col<6 and pieza is not None:
+            if pieza is not None:
                 if pieza.color == chess.WHITE:
-                    Heuristica += valorDePieza[pieza.piece_type]*2
+                    Heuristica += valorDePieza[pieza.piece_type][fil][col]
                 else:
-                    Heuristica -= valorDePieza[pieza.piece_type]*2
-            elif pieza is not None:
-                if pieza.color == chess.WHITE:
-                    Heuristica += valorDePieza[pieza.piece_type]
-                else:
-                    Heuristica -= valorDePieza[pieza.piece_type]
+                    Heuristica -= valorDePieza[pieza.piece_type][7-fil][7-col]
 
     for pieza in tablero.piezasB:
-        Heuristica += valorDePieza[pieza.piece_type]*0.9
+        Heuristica += valorDePieza[pieza.piece_type][8]
 
     for pieza in tablero.piezasN:
-        Heuristica -= valorDePieza[pieza.piece_type]*0.9
-    ##print(Heuristica , "hhh\n" , len(tablero.piezasB) , len(tablero.piezasN), tablero.tablero)  
-     
+        Heuristica -= valorDePieza[pieza.piece_type][8] 
     return Heuristica
 
 # Definición de la función para generar los movimientos posibles
 def generar_movimientos(tablero):
-    movimientoAdd =list( tablero.tablero.legal_moves)
+    movimientoAdd =list(tablero.tablero.legal_moves)
     for fil in range(8):
         for col in range(8):
             
@@ -62,7 +105,7 @@ def generar_movimientos(tablero):
             if pieza is None:
                 if tablero.tablero.turn == chess.WHITE:
                     for piezaAdd in tablero.piezasB:
-                        destino = chess.square(col, 7-fil)
+                        destino = chess.square(col, 7-fil)#posicion de la libreria chess
                         if not(piezaAdd.piece_type == chess.PAWN and (chess.square_rank(destino) in [0, 7])):
                             movimientoAdd.append((destino,piezaAdd))
                 else:
@@ -71,11 +114,12 @@ def generar_movimientos(tablero):
                         if not(piezaAdd.piece_type == chess.PAWN and (chess.square_rank(destino) in [0, 7])):
                             movimientoAdd.append((destino,piezaAdd))
 # Aquí debes implementar la generación de todos los movimientos
-    # legales a partir del estado actual del tablero y retornarlos
+    #legales a partir del estado actual del tablero y retornarlos
     return movimientoAdd
 
 # Definición de la función para aplicar un 
 # movimiento al tablero
+
 def aplicar_movimiento(tablero, movimiento):
     tableroOBJ_copia = tablero
     tablero_copia = tableroOBJ_copia.tablero.copy()
@@ -86,55 +130,48 @@ def aplicar_movimiento(tablero, movimiento):
         Pieza_Capturada =tablero_copia.piece_at(movimiento.to_square)
         tablero_copia.push(movimiento)
         if  Pieza_Capturada is not None:
-            ##print("ENTROOOOOOOOO892379847928479")
             Pieza_Capturada = cambiar_color_pieza(Pieza_Capturada) 
             if Pieza_Capturada.color == chess.WHITE:
                 piezasB_copia.append(Pieza_Capturada)
             else:
                 piezasN_copia.append(Pieza_Capturada)
-
-    else:
-        #print("ENTROOOOOOOOO")
+    #pasamos pieza del loco a tablero normal
+    else: #tablero loco
         if movimiento[1] in tablero.piezasN:
-            piezasN_copia.remove(movimiento[1])
+            piezasN_copia.remove(movimiento[1])#quitamos la pieza
         elif  movimiento[1] in tablero.piezasB:
             piezasB_copia.remove(movimiento[1])
-        tablero_copia.set_piece_at(movimiento[0], movimiento[1])
+        tablero_copia.set_piece_at(movimiento[0], movimiento[1]) #agregar pieza
         tablero_copia.turn = not tablero_copia.turn 
-    # Aquí debes implementar la lógica para aplicar un movimiento
-    # al tablero y retornar el nuevo tablero resultante
-    #print(tablero_copia)
+
     return Tablero(tablero_copia, piezasB_copia,piezasN_copia)
 
 # Definición de la función principal para la búsqueda con poda alpha-beta
 def minimax(tablero, profundidad, alpha, beta, jugador_max):
     if profundidad == 0:
         return evaluar_tablero(tablero)
-
     if jugador_max:
         mejor_valor = float("-inf")
         movimientos = generar_movimientos(tablero)
         for movimiento in movimientos:
             nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, False)
+            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, False) ##
             mejor_valor = max(mejor_valor, valor)
             alpha = max(alpha, mejor_valor)
             if beta <= alpha:
-                a=0
-                ##break
+                break
         return mejor_valor
     else:
         mejor_valor = float("inf")
         movimientos = generar_movimientos(tablero)
         for movimiento in movimientos:
             nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, True)
-            mejor_valor = min(mejor_valor, valor)
-            beta = min(beta, mejor_valor)
+            valor = minimax(nuevo_tablero, profundidad - 1, alpha, beta, True) ##2
+            mejor_valor = min(mejor_valor, valor)   
+            beta = min(beta, mejor_valor) 
             if beta <= alpha:
-                a=0
-                ##break
-        return mejor_valor
+                break
+        return mejor_valor 
 
 # Función para seleccionar el mejor movimiento usando el algoritmo minimax con poda alpha-beta
 def seleccionar_mejor_movimiento(tableroAL,piezas):
@@ -142,19 +179,13 @@ def seleccionar_mejor_movimiento(tableroAL,piezas):
     mejor_movimiento = None
     mejor_valor = float("-inf")
     movimientos = generar_movimientos(tablero)
+    alpha = float("-inf")
     for movimiento in movimientos:
         nuevo_tablero = aplicar_movimiento(tablero, movimiento)
-        valor = minimax(nuevo_tablero, 3, float("-inf"), float("inf"), False)
+        valor = minimax(nuevo_tablero, 2, alpha , float("inf"),False)
         if valor > mejor_valor:
-            mejor_valor = valor
+            mejor_valor = valor 
             mejor_movimiento = movimiento
+            alpha = mejor_valor 
 
     return mejor_movimiento
-
-# Ejemplo de uso
-""" tablero1 = chess.Board()  # Tablero inicial
-piezaaaa=chess.Piece(chess.PAWN,chess.WHITE)
-piezaaa=chess.Piece(chess.PAWN,chess.BLACK)
-tablero = Tablero(tablero1,[piezaaaa,piezaaaa],[piezaaa])
-mejor_movimiento = minimax(tablero, 0, float("-inf"), float("inf"), False)
-print("El mejor movimiento es:", mejor_movimiento) """
